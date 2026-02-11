@@ -144,8 +144,10 @@
           </div>
         </div>
 
-        <!-- 右侧：说明区 (占 4 列) -->
+        <!-- 右侧：说明区和历史记录 (占 4 列) -->
         <div class="lg:col-span-4 space-y-6">
+          <!-- 历史记录组件 -->
+          <HistoryManager ref="historyManagerRef" :new-link="resultUrl" @link-added="handleLinkAdded" />
           <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/50 p-6 sticky top-8">
             <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
               <span class="w-1 h-6 bg-purple-500 rounded-full" />
@@ -205,9 +207,11 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
+import HistoryManager from '@/components/HistoryManager.vue'
 
 const inputText = ref('')
 const copied = ref(false)
+const historyManagerRef = ref(null)
 
 // 监听输入，重置复制状态
 watch(inputText, () => {
@@ -282,9 +286,18 @@ const copyResult = async () => {
   }
 }
 
+// 处理链接添加事件
+const handleLinkAdded = (link) => {
+  console.log('Link added to history:', link)
+}
+
 // 跳转功能
 const openUrl = () => {
   if (resultUrl.value) {
+    // 将链接添加到历史记录
+    if (historyManagerRef.value) {
+      historyManagerRef.value.addLink(resultUrl.value)
+    }
     window.open(resultUrl.value, '_blank')
   }
 }
