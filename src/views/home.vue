@@ -4,28 +4,20 @@
     <div class="absolute inset-0 z-0 opacity-[0.4]" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 32px 32px;" />
     <div class="absolute top-0 right-[-10%] w-[500px] h-[500px] bg-purple-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob" />
     <div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-pink-300 rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob animation-delay-2000" />
-    <!-- GitHub Star Button -->
-    <a
-      href="https://github.com/monsterxwx/PrivacyBox"
-      target="_blank"
-      class="fixed top-6 right-6 z-50 flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 hover:bg-white"
+
+    <!-- 瑟瑟游戏按钮 -->
+    <div
+      @click="clickAdultGames"
+      class="absolute top-6 right-6 z-50  cursor-pointer"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="text-gray-700"
-      >
-        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-      </svg>
-      <span class="text-sm font-medium text-gray-700">Star</span>
-    </a>
+      <div class="relative">
+        <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-40 group-hover:opacity-60 transition-all duration-300" />
+        <div class="relative flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg shadow-md shadow-purple-500/20 hover:shadow-purple-500/30 hover:-translate-y-0.5 transition-all duration-300">
+          <span class="text-white font-semibold text-xs">瑟瑟游戏</span>
+        </div>
+      </div>
+    </div>
+
     <!-- ================= 内容区域 ================= -->
     <div class="relative z-10 max-w-5xl mx-auto px-6 py-12">
       <!-- 头部 -->
@@ -148,6 +140,33 @@
         <div class="lg:col-span-4 space-y-6">
           <!-- 历史记录组件 -->
           <HistoryManager ref="historyManagerRef" :new-link="resultUrl" @link-added="handleLinkAdded" />
+          <!-- 捐赠区域 -->
+          <div class="mt-8 pt-6 border-t border-slate-200">
+            <div class="flex justify-center">
+              <div
+                class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-100 to-orange-100 rounded-full border border-amber-200 cursor-pointer hover:from-amber-200 hover:to-orange-200 transition-all duration-300 group"
+                @click="showDonationModal = true"
+                @mouseenter="showDonationTooltip = true"
+                @mouseleave="showDonationTooltip = false"
+              >
+                <span class="text-lg">☕️</span>
+                <span class="text-sm font-medium text-amber-800">请作者喝杯咖啡</span>
+                <svg
+                  class="w-4 h-4 text-amber-600 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
           <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/50 p-6 sticky top-8">
             <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
               <span class="w-1 h-6 bg-purple-500 rounded-full" />
@@ -202,6 +221,54 @@
         </div>
       </div>
     </div>
+
+    <!-- 捐赠二维码弹窗 -->
+    <div v-if="showDonationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" @click="showDonationModal = false">
+      <div class="bg-white rounded-2xl p-8 max-w-sm mx-4 relative shadow-2xl" @click.stop>
+        <button
+          @click="showDonationModal = false"
+          class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+
+        <div class="text-center">
+          <div class="text-3xl mb-2">
+            ☕️
+          </div>
+          <h3 class="text-lg font-bold text-gray-800 mb-2">
+            感谢您的支持！
+          </h3>
+
+          <!-- 二维码图片区域 -->
+          <div class="bg-gray-50 rounded-xl  mb-4">
+            <div class="w-48  mx-auto bg-white rounded-lg border-2 border-gray-200 flex items-center justify-center overflow-hidden">
+              <img
+                src="/juanzhen.jpg"
+                alt="支付宝收款码"
+                class="w-full h-full object-cover"
+              >
+            </div>
+          </div>
+
+          <p class="text-xs text-gray-400">
+            您的支持是我继续开发的动力！
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -212,11 +279,17 @@ import HistoryManager from '@/components/HistoryManager.vue'
 const inputText = ref('')
 const copied = ref(false)
 const historyManagerRef = ref(null)
+const showDonationModal = ref(false)
+const showDonationTooltip = ref(false)
 
 // 监听输入，重置复制状态
 watch(inputText, () => {
   copied.value = false
 })
+
+const clickAdultGames = () => {
+  window.open('https://link3.cc/zyshare', '_blank')
+}
 
 // 核心解析逻辑
 const resultUrl = computed(() => {
