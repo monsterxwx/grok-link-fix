@@ -269,18 +269,58 @@
         </div>
       </div>
     </div>
+    <!-- 导入分享文件夹弹窗 -->
+    <Modal
+      v-model:visible="showImportModal"
+      title="发现分享的文件夹"
+      type="primary"
+      confirm-text="确定导入"
+      @confirm="confirmImport"
+      @cancel="cancelImport"
+      :close-on-backdrop="false"
+    >
+      <template #icon>
+        <div class="text-purple-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+        </div>
+      </template>
+
+      <div class="space-y-4">
+        <div class="p-4 bg-purple-50 rounded-xl border border-purple-100">
+          <p class="font-bold text-purple-900 mb-1 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+            {{ sharedFolderData?.folderName }}
+          </p>
+          <p class="text-sm text-purple-700">
+            包含 {{ sharedFolderData?.links?.length || 0 }} 个链接
+          </p>
+        </div>
+        <p class="text-slate-600 text-sm">
+          是否将该文件夹及其包含的链接保存到您的本地历史记录中？
+        </p>
+      </div>
+    </Modal>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import HistoryManager from '@/components/HistoryManager.vue'
+import Modal from '@/components/Modal.vue'
 
 const inputText = ref('')
 const copied = ref(false)
 const historyManagerRef = ref(null)
 const showDonationModal = ref(false)
 const showDonationTooltip = ref(false)
+
+// 分享导入相关的状态
+const showImportModal = ref(false)
+const sharedFolderData = ref(null)
 
 // 监听输入，重置复制状态
 watch(inputText, () => {
@@ -374,6 +414,91 @@ const openUrl = () => {
     window.open(resultUrl.value, '_blank')
   }
 }
+
+// 检查 URL 参数是否有分享数据
+const checkShareData = async () => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const shareDataParam = urlParams.get('shareData')
+  const optimizedShareParam = urlParams.get('s')
+  
+  if (optimizedShareParam) {
+    try {
+      // 引入 lz-string 解压数据
+      const { decompressFromEncodedURIComponent } = await import('lz-string')
+      const decompressedStr = decompressFromEncodedURIComponent(optimizedShareParam)
+      const parsedData = JSON.parse(decompressedStr)
+      
+      // 新版精简数据格式: [folderName, [ {n: name, u: uuid|url} ]]
+      if (Array.isArray(parsedData) && parsedData.length === 2) {
+        const folderName = parsedData[0]
+        const rawLinks = parsedData[1]
+        
+        const reconstructedLinks = rawLinks.map(link => {
+          let fullUrl = link.u
+          // 如果只是单纯的 UUID，帮他拼回完整的 Grok URL
+          if (/^[a-fA-F0-9-]{32,}$/.test(fullUrl)) {
+             fullUrl = `https://grok.com/imagine/post/${fullUrl}?source=copy_link&platform=android`
+          }
+          return {
+            name: link.n || '未命名',
+            url: fullUrl
+          }
+        })
+        
+        sharedFolderData.value = {
+          folderName: folderName,
+          links: reconstructedLinks
+        }
+        showImportModal.value = true
+        
+        // 清除 URL 参数
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname
+        window.history.replaceState({path: newUrl}, '', newUrl)
+      }
+    } catch (err) {
+      console.error('解析精简分享数据失败:', err)
+    }
+  } else if (shareDataParam) {
+    // 兼容旧版的 base64 格式
+    try {
+      const decodedStr = decodeURIComponent(atob(shareDataParam))
+      const parsedData = JSON.parse(decodedStr)
+      
+      if (parsedData && parsedData.folderName && Array.isArray(parsedData.links)) {
+        sharedFolderData.value = parsedData
+        showImportModal.value = true
+        
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname
+        window.history.replaceState({path: newUrl}, '', newUrl)
+      }
+    } catch (err) {
+      console.error('解析历史分享数据失败:', err)
+    }
+  }
+}
+
+// 取消导入
+const cancelImport = () => {
+  showImportModal.value = false
+  sharedFolderData.value = null
+}
+
+// 确认导入
+const confirmImport = () => {
+  if (!sharedFolderData.value || !historyManagerRef.value) return
+  
+  // 调用暴露的 importSharedFolder 方法
+  if (historyManagerRef.value.importSharedFolder) {
+    historyManagerRef.value.importSharedFolder(sharedFolderData.value)
+  }
+  
+  showImportModal.value = false
+  sharedFolderData.value = null
+}
+
+onMounted(() => {
+  checkShareData()
+})
 </script>
 
 <style scoped>
