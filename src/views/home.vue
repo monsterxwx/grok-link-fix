@@ -141,7 +141,7 @@
           <!-- 历史记录组件 -->
           <HistoryManager ref="historyManagerRef" :new-link="resultUrl" @link-added="handleLinkAdded" />
           <!-- 捐赠区域 -->
-          <div class="mt-8 pt-6 border-t border-slate-200">
+          <!-- <div class="mt-8 pt-6 border-t border-slate-200">
             <div class="flex justify-center">
               <div
                 class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-100 to-orange-100 rounded-full border border-amber-200 cursor-pointer hover:from-amber-200 hover:to-orange-200 transition-all duration-300 group"
@@ -166,7 +166,7 @@
                 </svg>
               </div>
             </div>
-          </div>
+          </div> -->
           <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/50 p-6 sticky top-8">
             <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
               <span class="w-1 h-6 bg-purple-500 rounded-full" />
