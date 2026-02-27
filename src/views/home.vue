@@ -304,11 +304,39 @@
         </p>
       </div>
     </Modal>
+
+    <!-- 剪贴板检测弹窗 -->
+    <Modal
+      v-model:visible="showClipboardModal"
+      title="检测到未处理的链接"
+      type="primary"
+      confirm-text="填入"
+      cancel-text="忽略"
+      @confirm="confirmClipboardFill"
+      @cancel="cancelClipboardFill"
+    >
+      <template #icon>
+        <div class="text-blue-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        </div>
+      </template>
+
+      <div class="space-y-4">
+        <p class="text-slate-600 text-sm">
+          在剪贴板中检测到包含 UUID 的内容，是否自动填入并清空当前内容？
+        </p>
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-500 break-all max-h-24 overflow-y-auto line-clamp-3">
+          {{ clipboardContent }}
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import HistoryManager from '@/components/HistoryManager.vue'
 import Modal from '@/components/Modal.vue'
 
@@ -321,6 +349,11 @@ const showDonationTooltip = ref(false)
 // 分享导入相关的状态
 const showImportModal = ref(false)
 const sharedFolderData = ref(null)
+
+// 剪贴板相关的状态
+const showClipboardModal = ref(false)
+const clipboardContent = ref('')
+const lastCheckedClipboard = ref('')
 
 // 监听输入，重置复制状态
 watch(inputText, () => {
@@ -496,8 +529,69 @@ const confirmImport = () => {
   sharedFolderData.value = null
 }
 
+// 检查剪贴板内容
+const checkClipboard = async () => {
+  // 当有其他弹窗打开时，不触发剪贴板检测，避免冲突
+  if (showImportModal.value || showClipboardModal.value || showDonationModal.value) return
+  
+  try {
+    const text = await navigator.clipboard.readText()
+    // 若为空、已检测过，或是当前输入框的内容，则跳过
+    if (!text || text === lastCheckedClipboard.value || text === inputText.value) return
+    
+    // 基础校验：是否可能包含 UUID
+    const rawHex = text.replace(/[^0-9a-fA-F]/g, '').toLowerCase()
+    if (rawHex.length < 32) {
+      lastCheckedClipboard.value = text
+      return
+    }
+    
+    let isValid = false
+    for (let i = 0; i <= rawHex.length - 32; i++) {
+      const segment = rawHex.substr(i, 32)
+      if (segment[12] === '4' && ['8', '9', 'a', 'b'].includes(segment[16])) {
+        isValid = true
+        break
+      }
+    }
+    // 兜底方案
+    if (!isValid && rawHex.length >= 32) isValid = true
+
+    if (isValid) {
+      clipboardContent.value = text
+      showClipboardModal.value = true
+    } else {
+      lastCheckedClipboard.value = text
+    }
+  } catch (err) {
+    // 忽略读取失败的情况（例如用户未授权，或非安全上下文）
+    console.debug('读取剪贴板失败，可能是权限未授予:', err)
+  }
+}
+
+const confirmClipboardFill = () => {
+  inputText.value = ''
+  setTimeout(() => {
+    inputText.value = clipboardContent.value
+  }, 50)
+  lastCheckedClipboard.value = clipboardContent.value
+  showClipboardModal.value = false
+}
+
+const cancelClipboardFill = () => {
+  lastCheckedClipboard.value = clipboardContent.value
+  showClipboardModal.value = false
+}
+
 onMounted(() => {
   checkShareData()
+  window.addEventListener('focus', checkClipboard)
+  // 初次加载也尝试检测一次
+  setTimeout(checkClipboard, 500)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('focus', checkClipboard)
 })
 </script>
 

@@ -244,6 +244,25 @@
           <!-- 操作按钮 (悬停显示，移动端常显) -->
           <div class="flex gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
             <button
+              @click.stop="shareSingleLink(link)"
+              class="p-1.5 text-slate-400 hover:text-green-500 hover:bg-green-50 rounded-lg transition-colors"
+              title="生成防吞分享口令"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                />
+              </svg>
+            </button>
+            <button
               @click.stop="showMoveMenu(link.id)"
               class="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
               title="移动到文件夹"
@@ -378,7 +397,7 @@
         <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
-        分享链接已复制到剪贴板！
+        分享内容已复制到剪贴板！
       </div>
     </Teleport>
   </div>
@@ -688,6 +707,67 @@ const shareFolder = async (folder) => {
   } catch (err) {
     console.error('分享失败:', err)
     customAlert('生成分享链接失败，请重试')
+  }
+}
+
+// 分享单个链接（防吞口令模式）
+const shareSingleLink = async (link) => {
+  try {
+    // 1. 尝试从 URL 中提取 32位 UUID
+    const urlMatch = link.url.match(/([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})/)
+    let uuid = ''
+    if (urlMatch) {
+      uuid = urlMatch[1]
+    } else {
+      // 备用方案，如果有裸 32 位字符
+      const nakedMatch = link.url.match(/([a-fA-F0-9]{32})/)
+      if (nakedMatch) uuid = nakedMatch[1]
+    }
+
+    if (!uuid) {
+      customAlert('无法提取有效的 UUID 进行分享')
+      return
+    }
+
+    // 2. 移除原生横杠，方便后续重新插入
+    const cleanUuid = uuid.replace(/-/g, '')
+    
+    // 3. 准备随机干扰符（美观的符号）
+    const symbols = ['✦', '✨', '❀', '✿', '✾', '❁', '❄', '★', '☆', '♥', '♡', '♪', '♫', '☼', '☀', '☁', '☂', '☃', '☄']
+    const getRandomSymbol = () => symbols[Math.floor(Math.random() * symbols.length)]
+
+    // 4. 将 32 位 UUID 按 8-4-4-4-12 分段，中间插入随机符号
+    const p1 = cleanUuid.substr(0, 8)
+    const p2 = cleanUuid.substr(8, 4)
+    const p3 = cleanUuid.substr(12, 4)
+    const p4 = cleanUuid.substr(16, 4)
+    const p5 = cleanUuid.substr(20, 12)
+
+    // 头尾也加上随机符号
+    const sym1 = getRandomSymbol()
+    const sym2 = getRandomSymbol()
+    const sym3 = getRandomSymbol()
+    const sym4 = getRandomSymbol()
+    const sym5 = getRandomSymbol()
+    const sym6 = getRandomSymbol()
+
+    const obfuscatedCode = `${sym1}${p1}${sym2}${p2}${sym3}${p3}${sym4}${p4}${sym5}${p5}${sym6}`
+
+    // 5. 组合分享文案
+    const shareText = `看我生成的绝妙内容${obfuscatedCode}复制这段话打开#Grok链接补全#工具即可直接查看！`
+
+    // 6. 复制到剪贴板
+    await navigator.clipboard.writeText(shareText)
+    
+    // 7. 提示成功
+    showShareToast.value = true
+    setTimeout(() => {
+      showShareToast.value = false
+    }, 3000)
+
+  } catch (err) {
+    console.error('防吞分享失败:', err)
+    customAlert('生成分享口令失败，请重试')
   }
 }
 
