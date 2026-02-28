@@ -411,9 +411,9 @@ import Modal from './Modal.vue'
 // Props
 const props = defineProps({
   // 从父组件传入的新链接
-  newLink: {
-    type: String,
-    default: ''
+  newLinks: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -781,12 +781,14 @@ onMounted(() => {
 })
 
 // 监听新链接
-watch(() => props.newLink, (newVal, oldVal) => {
-  // 只有当newVal不为空且与oldVal不同时才添加
-  if (newVal && newVal !== oldVal) {
-    addLink(newVal)
+watch(() => props.newLinks, (newVal) => {
+  if (Array.isArray(newVal) && newVal.length > 0) {
+    // 采用逆序遍历，让原先排在前面的链接，因为每次都是放入最前，再次保证它展示在最前
+    [...newVal].reverse().forEach(url => {
+      addLink(url)
+    })
   }
-})
+}, { deep: true, immediate: true })
 
 // 导入分享的文件夹
 const importSharedFolder = (sharedData) => {
