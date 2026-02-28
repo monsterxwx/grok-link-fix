@@ -105,10 +105,9 @@
       @click="toggleChat"
       class="w-14 h-14 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full shadow-xl shadow-purple-500/40 flex items-center justify-center text-white hover:-translate-y-1 hover:shadow-purple-500/60 transition-all relative z-50 group active:scale-95"
     >
-      <!-- 有新消息小红点 -->
-      <span v-if="hasUnread && !isOpen" class="absolute -top-1 -right-1 flex h-4 w-4">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white"></span>
+      <!-- 有新消息小红点带数字 -->
+      <span v-if="unreadCount > 0 && !isOpen" class="absolute -top-2 -right-2 flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full bg-red-500 border-2 border-white text-[10px] font-bold shadow-sm whitespace-nowrap">
+         {{ unreadCount > 99 ? '99+' : unreadCount }}
       </span>
       
       <svg v-if="!isOpen" class="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,7 +126,7 @@ import mqtt from 'mqtt'
 
 // 状态
 const isOpen = ref(false)
-const hasUnread = ref(false)
+const unreadCount = ref(0)
 const isConnected = ref(false)
 const messages = ref([])
 const inputText = ref('')
@@ -241,9 +240,9 @@ const initMqtt = () => {
           messages.value.shift()
         }
 
-        // 如果聊天窗没打开，且不是自己发的消息，则显示小红点
+        // 如果聊天窗没打开，且不是自己发的消息，则累加未读数
         if (!isOpen.value && !payload.isSelf) {
-          hasUnread.value = true
+          unreadCount.value++
         }
 
         scrollToBottom()
@@ -332,7 +331,7 @@ const sendMessage = () => {
 const toggleChat = () => {
   isOpen.value = !isOpen.value
   if (isOpen.value) {
-    hasUnread.value = false
+    unreadCount.value = 0 // 打开时清空未读数
     scrollToBottom()
   }
 }
