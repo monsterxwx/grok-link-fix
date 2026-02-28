@@ -332,6 +332,9 @@
         </div>
       </div>
     </Modal>
+
+    <!-- 全局群聊组件 -->
+    <LiveChat />
   </div>
 </template>
 
@@ -339,6 +342,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import HistoryManager from '@/components/HistoryManager.vue'
 import Modal from '@/components/Modal.vue'
+import LiveChat from '@/components/LiveChat.vue'
 
 const inputText = ref('')
 const copied = ref(false)
