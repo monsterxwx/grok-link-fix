@@ -269,6 +269,29 @@
         </div>
       </div>
     </div>
+    
+    <!-- 版本更新提示弹窗 -->
+    <Modal
+      v-model:visible="showUpdateModal"
+      :title="updateTitle"
+      type="primary"
+      :show-cancel="false"
+      confirm-text="我知道了"
+      @confirm="confirmUpdate"
+      @cancel="confirmUpdate"
+      :close-on-backdrop="false"
+    >
+      <template #icon>
+        <div class="text-purple-500 mt-5px">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+          </svg>
+        </div>
+      </template>
+
+      <div v-html="updateContent"></div>
+    </Modal>
+    
     <!-- 导入分享文件夹弹窗 -->
     <Modal
       v-model:visible="showImportModal"
@@ -358,6 +381,33 @@ const sharedFolderData = ref(null)
 const showClipboardModal = ref(false)
 const clipboardContent = ref('')
 const lastCheckedClipboard = ref('')
+
+// 版本更新提示相关
+const showUpdateModal = ref(false)
+const currentVersion = '1.3' // 👉 每次有新功能时，只需修改这个版本号
+const updateTitle = '新功能发布 (v1.3)'
+const updateContent = `
+  <div class="space-y-2 text-sm text-slate-600">
+    <p class="font-bold text-slate-800">本次更新内容：</p>
+    <ul class="list-disc pl-5 space-y-1">
+      <li>新增：全局匿名即时群聊功能，快来和大家畅所欲言吧！无任何限制，随便聊，随便分享好看的链接。</li>
+      <li>新增：分享链接和文件夹功能，快来分享你的链接或文件夹吧！</li>
+    </ul>
+    <p class="mt-4 text-xs text-slate-400">（点击“我知道了”后，直到下次更新前不再打扰）</p>
+  </div>
+`
+
+const checkUpdate = () => {
+  const lastVersion = localStorage.getItem('grok_link_last_version')
+  if (lastVersion !== currentVersion) {
+    showUpdateModal.value = true
+  }
+}
+
+const confirmUpdate = () => {
+  localStorage.setItem('grok_link_last_version', currentVersion)
+  showUpdateModal.value = false
+}
 
 // 监听输入，重置复制状态
 watch(inputText, () => {
@@ -536,7 +586,7 @@ const confirmImport = () => {
 // 检查剪贴板内容
 const checkClipboard = async () => {
   // 当有其他弹窗打开时，不触发剪贴板检测，避免冲突
-  if (showImportModal.value || showClipboardModal.value || showDonationModal.value) return
+  if (showImportModal.value || showClipboardModal.value || showDonationModal.value || showUpdateModal.value) return
   
   try {
     const text = await navigator.clipboard.readText()
@@ -589,6 +639,7 @@ const cancelClipboardFill = () => {
 
 onMounted(() => {
   checkShareData()
+  checkUpdate()
   window.addEventListener('focus', checkClipboard)
   // 初次加载也尝试检测一次
   setTimeout(checkClipboard, 500)
