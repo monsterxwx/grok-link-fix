@@ -13,7 +13,11 @@
       <div class="relative">
         <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-40 group-hover:opacity-60 transition-all duration-300" />
         <div class="relative flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg shadow-md shadow-purple-500/20 hover:shadow-purple-500/30 hover:-translate-y-0.5 transition-all duration-300">
-          <span class="text-white font-semibold text-xs">瑟瑟游戏</span>
+          <Transition name="adult-text" mode="out-in">
+            <span :key="adultGamesText" class="text-white font-semibold text-xs inline-block origin-center">
+              {{ adultGamesText }}
+            </span>
+          </Transition>
         </div>
       </div>
     </div>
@@ -347,6 +351,8 @@ import LiveChat from '@/components/LiveChat.vue'
 const inputText = ref('')
 const copied = ref(false)
 const historyManagerRef = ref(null)
+const adultGamesText = ref('瑟瑟游戏')
+let adultGamesTextTimer = null
 
 // 分享导入相关的状态
 const showImportModal = ref(false)
@@ -645,12 +651,21 @@ const cancelClipboardFill = () => {
 onMounted(() => {
   checkShareData()
   checkUpdate()
+  adultGamesTextTimer = setInterval(() => {
+    adultGamesText.value = adultGamesText.value === '瑟瑟游戏'
+      ? '好用流量卡'
+      : '瑟瑟游戏'
+  }, 3000)
   window.addEventListener('focus', checkClipboard)
   // 初次加载也尝试检测一次
   setTimeout(checkClipboard, 500)
 })
 
 onUnmounted(() => {
+  if (adultGamesTextTimer) {
+    clearInterval(adultGamesTextTimer)
+    adultGamesTextTimer = null
+  }
   window.removeEventListener('focus', checkClipboard)
 })
 </script>
@@ -664,4 +679,38 @@ onUnmounted(() => {
 }
 .animate-blob { animation: blob 7s infinite; }
 .animation-delay-2000 { animation-delay: 2s; }
+
+.adult-text-enter-active {
+  transition: transform 520ms cubic-bezier(0.16, 1, 0.3, 1), opacity 520ms ease, filter 520ms ease, clip-path 520ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.adult-text-leave-active {
+  transition: transform 280ms ease-in, opacity 280ms ease-in, filter 280ms ease-in;
+}
+
+.adult-text-enter-from {
+  opacity: 0;
+  transform: scale(0.35);
+  filter: blur(8px);
+  clip-path: circle(0% at 50% 50%);
+}
+
+.adult-text-enter-to {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+  clip-path: circle(150% at 50% 50%);
+}
+
+.adult-text-leave-from {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+.adult-text-leave-to {
+  opacity: 0;
+  transform: scale(0.2);
+  filter: blur(4px);
+}
 </style>
