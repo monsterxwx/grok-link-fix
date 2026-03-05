@@ -655,7 +655,7 @@ onMounted(() => {
     adultGamesText.value = adultGamesText.value === '瑟瑟游戏'
       ? '好用流量卡'
       : '瑟瑟游戏'
-  }, 3000)
+  }, 15000)
   window.addEventListener('focus', checkClipboard)
   // 初次加载也尝试检测一次
   setTimeout(checkClipboard, 500)
@@ -679,35 +679,29 @@ onUnmounted(() => {
 }
 .animate-blob { animation: blob 7s infinite; }
 .animation-delay-2000 { animation-delay: 2s; }
-
 .adult-text-enter-active {
   transition: transform 520ms cubic-bezier(0.16, 1, 0.3, 1), opacity 520ms ease, filter 520ms ease, clip-path 520ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 .adult-text-leave-active {
   transition: transform 280ms ease-in, opacity 280ms ease-in, filter 280ms ease-in;
 }
-
 .adult-text-enter-from {
   opacity: 0;
   transform: scale(0.35);
   filter: blur(8px);
   clip-path: circle(0% at 50% 50%);
 }
-
 .adult-text-enter-to {
   opacity: 1;
   transform: scale(1);
   filter: blur(0);
   clip-path: circle(150% at 50% 50%);
 }
-
 .adult-text-leave-from {
   opacity: 1;
   transform: scale(1);
   filter: blur(0);
 }
-
 .adult-text-leave-to {
   opacity: 0;
   transform: scale(0.2);
