@@ -2,60 +2,42 @@
   <div class="history-manager bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/50 p-6">
     <!-- 组件标题 -->
     <div class="flex justify-between items-center mb-1">
-      <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-        <span class="w-1 h-6 bg-purple-500 rounded-full" />
+      <h2 class="text-base font-bold text-slate-800 flex items-center gap-1.5 shrink-0">
+        <span class="w-1 h-5 bg-purple-500 rounded-full" />
         历史记录
       </h2>
-      <div class="flex gap-2">
+      <div class="flex items-center gap-1">
+        <!-- 全屏展开按钮 -->
+        <div
+          @click="showFullscreen = true"
+          class="cursor-pointer p-1 rounded-lg transition-colors text-slate-400 hover:text-purple-600"
+          title="全屏查看"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+        </div>
         <!-- 编辑模式切换按钮 -->
         <div
           @click="isManaging = !isManaging"
-          class="cursor-pointer"
-          :class="[
-            'p-1.5 rounded-lg transition-colors',
-            isManaging ? 'text-purple-600' : 'text-slate-400'
-          ]"
+          class="cursor-pointer p-1 rounded-lg transition-colors"
+          :class="isManaging ? 'text-purple-600' : 'text-slate-400'"
           title="管理文件夹"
         >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </div>
-        <!-- 新建文件夹按钮 -->
+        <!-- 新建文件夹按钮 (仅图标) -->
         <button
           @click="showCreateFolderModal = true"
-          class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors flex items-center gap-1"
+          class="p-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors flex items-center justify-center"
+          title="新建文件夹"
         >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          新建文件夹
         </button>
       </div>
     </div>
@@ -400,6 +382,219 @@
         分享内容已复制到剪贴板！
       </div>
     </Teleport>
+
+    <!-- ================= 全屏弹窗 ================= -->
+    <Teleport to="body">
+      <Transition name="fullscreen-fade">
+        <div
+          v-if="showFullscreen"
+          class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          @click.self="showFullscreen = false"
+        >
+          <div class="fullscreen-panel bg-white rounded-3xl shadow-2xl border border-slate-200 w-[94vw] max-w-[960px] h-[85vh] flex flex-col overflow-hidden" @click.stop>
+            <!-- 弹窗头部 -->
+            <div class="flex justify-between items-center px-4 sm:px-8 py-5 border-b border-slate-100 shrink-0">
+              <h2 class="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
+                <span class="w-1.5 h-7 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full" />
+                历史记录
+              </h2>
+              <div class="flex items-center gap-2 sm:gap-3">
+                <!-- 编辑模式切换 -->
+                <div
+                  @click="isManaging = !isManaging"
+                  class="cursor-pointer"
+                  :class="[
+                    'p-2 rounded-xl transition-all',
+                    isManaging ? 'text-purple-600 bg-purple-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                  ]"
+                  title="管理文件夹"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <!-- 新建文件夹 -->
+                <button
+                  @click="showCreateFolderModal = true"
+                  class="p-2 sm:px-4 sm:py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm transition-colors flex items-center gap-1.5 shadow-sm"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span class="hidden sm:inline">新建文件夹</span>
+                </button>
+                <!-- 关闭按钮 -->
+                <div
+                  @click="showFullscreen = false"
+                  class="cursor-pointer p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
+                  title="关闭"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- 弹窗内容区：左右两栏 -->
+            <div class="flex flex-1 min-h-0">
+              <!-- 左侧：文件夹列表 -->
+              <div class="w-32 sm:w-56 shrink-0 border-r border-slate-100 bg-slate-50/60 flex flex-col">
+                <div class="p-3 sm:p-4 text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">文件夹</div>
+                <div class="flex-1 overflow-y-auto px-2 sm:px-3 pb-4 space-y-1 fs-folder-scroll">
+                  <div
+                    v-for="folder in folders"
+                    :key="folder.id"
+                    @click="selectFolder(folder.id)"
+                    :class="[
+                      'flex items-center px-3 py-2.5 rounded-xl text-sm transition-all cursor-pointer group/folder',
+                      selectedFolderId === folder.id
+                        ? 'bg-purple-100 text-purple-700 font-medium shadow-sm'
+                        : 'text-slate-600 hover:bg-white hover:shadow-sm'
+                    ]"
+                  >
+                    <div class="flex-1 min-w-0">
+                      <!-- 文件夹编辑状态 -->
+                      <input
+                        v-if="editingFolderId === folder.id"
+                        v-model="editFolderName"
+                        class="w-full text-sm font-bold text-slate-700 bg-white border border-purple-200 rounded px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                        @blur="saveFolderEdit(folder.id)"
+                        @keyup.enter="saveFolderEdit(folder.id)"
+                        @keyup.esc="cancelFolderEdit"
+                        :ref="el => { if(el) folderInputRefs[folder.id] = el }"
+                        @click.stop
+                      >
+                      <!-- 文件夹正常显示 -->
+                      <template v-else>
+                        <div class="flex items-center gap-2">
+                          <svg class="w-4 h-4 shrink-0" :class="selectedFolderId === folder.id ? 'text-purple-500' : 'text-slate-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                          </svg>
+                          <span class="truncate">{{ folder.name }}</span>
+                        </div>
+                      </template>
+                    </div>
+                    <!-- 管理操作 -->
+                    <div v-if="isManaging" class="flex items-center gap-0.5 shrink-0 ml-1">
+                      <div @click.stop="startFolderEdit(folder)" class="text-slate-400 hover:text-green-500 transition-colors p-1 rounded" title="重命名">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </div>
+                      <div @click.stop="shareFolder(folder)" class="text-slate-400 hover:text-blue-500 transition-colors p-1 rounded" title="分享文件夹">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                      </div>
+                      <div @click.stop="showDeleteConfirm('folder', folder.id)" class="text-slate-400 hover:text-red-500 transition-colors p-1 rounded" title="删除文件夹">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右侧：链接列表 -->
+              <div class="flex-1 flex flex-col min-w-0 bg-slate-50/50">
+                <!-- 当前文件夹名称 -->
+                <div class="px-6 py-3 border-b border-slate-100/50 bg-white flex items-center justify-between shrink-0">
+                  <div class="text-sm text-slate-500">
+                    <span class="font-medium text-slate-700">{{ folders.find(f => f.id === selectedFolderId)?.name || '未选择' }}</span>
+                    <span class="ml-2 text-xs text-slate-400">{{ selectedFolderLinks.length }} 条链接</span>
+                  </div>
+                </div>
+
+                <!-- 链接卡片网格 -->
+                <div class="flex-1 overflow-y-auto px-6 py-6 fs-link-scroll">
+                  <div v-if="selectedFolderLinks.length === 0" class="flex flex-col items-center justify-center h-full text-slate-300">
+                    <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    </svg>
+                    <p class="text-sm">该文件夹为空</p>
+                  </div>
+
+                  <div class="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div
+                      v-for="link in displayLinks"
+                      :key="link.id"
+                      class="group relative bg-white border border-slate-200/80 rounded-xl p-3.5 shadow-[0_0_12px_rgba(0,0,0,0.08)] hover:border-purple-400 hover:shadow-[0_10px_30px_-10px_rgba(139,92,246,0.15)] hover:-translate-y-1 transition-all duration-300 cursor-default"
+                    >
+                      <!-- 操作按钮（右上角悬浮） -->
+                      <div class="absolute top-2 right-2 flex gap-0.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-3 transition-all duration-300 z-10">
+                        <button @click.stop="shareSingleLink(link)" class="p-1 text-slate-300 hover:text-green-500 hover:bg-green-50 rounded-lg transition-colors" title="生成防吞分享口令">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                          </svg>
+                        </button>
+                        <button @click.stop="showMoveMenu(link.id)" class="p-1 text-slate-300 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="移动到文件夹">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                          </svg>
+                        </button>
+                        <button @click.stop="showDeleteConfirm('link', link.id)" class="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="删除">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      <!-- 卡片顶部：图标 + 名称 -->
+                      <div class="flex items-center gap-2 mb-2 pr-12 group-hover:pr-0">
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 group-hover:bg-purple-600 flex items-center justify-center text-purple-500 group-hover:text-white shrink-0 transition-all duration-300 shadow-sm">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                          </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <input
+                            v-if="editingId === link.id"
+                            v-model="editName"
+                            class="w-full text-sm font-semibold text-slate-700 bg-white border border-purple-200 rounded px-1.5 py-0.5 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            @blur="saveEdit(link.id)"
+                            @keyup.enter="saveEdit(link.id)"
+                            @keyup.esc="cancelEdit"
+                            ref="editInput"
+                            @click.stop
+                          >
+                          <span
+                            v-else
+                            class="block text-sm font-semibold text-slate-700 truncate cursor-pointer hover:text-purple-600 transition-colors"
+                            @click="startEdit(link)"
+                            :title="link.name"
+                          >
+                            {{ link.name }}
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- URL -->
+                      <a
+                        :href="link.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-[11px] text-slate-400 hover:text-purple-500 hover:underline truncate block transition-colors leading-relaxed"
+                        :title="link.url"
+                      >
+                        {{ link.url }}
+                      </a>
+
+                      <!-- 时间 -->
+                      <div class="text-[10px] text-slate-300 mt-1.5">
+                        {{ formatDate(link.createdAt) }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -432,6 +627,7 @@ const editInput = ref(null)
 const movingLinkId = ref(null)
 const showMoveModal = ref(false)
 const isManaging = ref(false)
+const showFullscreen = ref(false)
 const deleteConfirmVisible = ref(false)
 const deleteConfirmType = ref('link') // 'link' 或 'folder'
 const deleteConfirmId = ref(null)
@@ -846,18 +1042,54 @@ defineExpose({
 
 <style scoped>
 /* 滚动条样式 */
-.space-y-3::-webkit-scrollbar {
+.space-y-3::-webkit-scrollbar,
+.fs-folder-scroll::-webkit-scrollbar,
+.fs-link-scroll::-webkit-scrollbar {
   width: 6px;
 }
-.space-y-3::-webkit-scrollbar-track {
+.space-y-3::-webkit-scrollbar-track,
+.fs-folder-scroll::-webkit-scrollbar-track,
+.fs-link-scroll::-webkit-scrollbar-track {
   border-radius: 3px;
   background: #f1f1f1;
 }
-.space-y-3::-webkit-scrollbar-thumb {
+.space-y-3::-webkit-scrollbar-thumb,
+.fs-folder-scroll::-webkit-scrollbar-thumb,
+.fs-link-scroll::-webkit-scrollbar-thumb {
   border-radius: 3px;
   background: #c1c1c1;
 }
-.space-y-3::-webkit-scrollbar-thumb:hover {
+.space-y-3::-webkit-scrollbar-thumb:hover,
+.fs-folder-scroll::-webkit-scrollbar-thumb:hover,
+.fs-link-scroll::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
+}
+
+/* 全屏弹窗动画 */
+.fullscreen-fade-enter-active {
+  transition: opacity 0.25s ease;
+}
+.fullscreen-fade-enter-active .fullscreen-panel {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+.fullscreen-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fullscreen-fade-leave-active .fullscreen-panel {
+  transition: transform 0.2s ease-in, opacity 0.2s ease;
+}
+.fullscreen-fade-enter-from {
+  opacity: 0;
+}
+.fullscreen-fade-enter-from .fullscreen-panel {
+  opacity: 0;
+  transform: scale(0.92) translateY(20px);
+}
+.fullscreen-fade-leave-to {
+  opacity: 0;
+}
+.fullscreen-fade-leave-to .fullscreen-panel {
+  opacity: 0;
+  transform: scale(0.95) translateY(10px);
 }
 </style>
